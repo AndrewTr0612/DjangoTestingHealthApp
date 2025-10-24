@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from datetime import date
 from .models import UserProfile, WeightEntry, WeightGoal
 
 
@@ -63,7 +65,8 @@ class WeightEntryForm(forms.ModelForm):
         widgets = {
             'recorded_date': forms.DateInput(attrs={
                 'type': 'date',
-                'class': 'form-control'
+                'class': 'form-control',
+                'max': date.today().isoformat()  # Prevent selecting future dates
             }),
             'weight_kg': forms.NumberInput(attrs={
                 'placeholder': 'e.g., 70.5',
@@ -80,6 +83,15 @@ class WeightEntryForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['notes'].required = False
+        # Update max date dynamically
+        self.fields['recorded_date'].widget.attrs['max'] = date.today().isoformat()
+    
+    def clean_recorded_date(self):
+        """Validate that recorded_date is not in the future"""
+        recorded_date = self.cleaned_data.get('recorded_date')
+        if recorded_date and recorded_date > date.today():
+            raise ValidationError('Weight entry date cannot be in the future. Please select today or an earlier date.')
+        return recorded_date
 
 
 class WeightGoalForm(forms.ModelForm):

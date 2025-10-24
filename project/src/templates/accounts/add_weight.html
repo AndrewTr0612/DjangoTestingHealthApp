@@ -35,7 +35,7 @@
                         </label>
                         {{ form.recorded_date }}
                         <div class="form-text">
-                            <i class="bi bi-info-circle"></i> When was this weight measured?
+                            <i class="bi bi-info-circle"></i> When was this weight measured? (Cannot be a future date)
                         </div>
                         {% for error in form.recorded_date.errors %}
                         <div class="alert alert-danger mt-2 py-2">{{ error }}</div>

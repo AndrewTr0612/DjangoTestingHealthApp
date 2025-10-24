@@ -139,7 +139,7 @@ def dashboard_view(request):
     # Prepare chart data
     chart_data = {
         'dates': [entry.recorded_date.strftime('%Y-%m-%d') for entry in reversed(weight_history)],
-        'weights': [float(entry.weight_kg) for entry in reversed(weight_history)],
+        'weights': [round(float(entry.weight_kg), 1) for entry in reversed(weight_history)],
     }
     
     # Calculate timeline if goal exists
@@ -151,15 +151,15 @@ def dashboard_view(request):
         progress = weight_goal.get_progress_percentage(current_weight)
         
         timeline_data = {
-            'current_weight': current_weight,
-            'target_weight': weight_goal.target_weight_kg,
-            'weight_difference': abs(weight_goal.target_weight_kg - current_weight),
+            'current_weight': round(current_weight, 1),
+            'target_weight': round(weight_goal.target_weight_kg, 1),
+            'weight_difference': round(abs(weight_goal.target_weight_kg - current_weight), 1),
             'weeks_to_goal': weeks_to_goal,
             'target_date': target_date,
             'progress': progress,
             'bmi': latest_weight.bmi,
             'bmi_category': latest_weight.bmi_category,
-            'weekly_rate': weight_goal.get_weekly_rate(),
+            'weekly_rate': round(weight_goal.get_weekly_rate(), 1),
         }
     
     context = {

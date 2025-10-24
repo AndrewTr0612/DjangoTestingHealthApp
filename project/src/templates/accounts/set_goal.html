@@ -18,12 +18,12 @@
                     <div class="row align-items-center">
                         <div class="col-md-8">
                             <h6 class="mb-1"><i class="bi bi-info-circle"></i> Current Status</h6>
-                            <p class="mb-0">Your current weight is <strong>{{ latest_weight.weight_kg }} kg</strong> 
+                            <p class="mb-0">Your current weight is <strong>{{ latest_weight.weight_kg|floatformat:1 }} kg</strong> 
                             {% if latest_weight.bmi %}with a BMI of <strong>{{ latest_weight.bmi }}</strong> ({{ latest_weight.bmi_category }}){% endif %}</p>
                         </div>
                         <div class="col-md-4 text-md-end mt-2 mt-md-0">
                             <span class="badge bg-primary" style="font-size: 1.2rem; padding: 0.5rem 1rem;">
-                                {{ latest_weight.weight_kg }} kg
+                                {{ latest_weight.weight_kg|floatformat:1 }} kg
                             </span>
                         </div>
                     </div>
@@ -71,9 +71,9 @@
                                 <i class="bi bi-info-circle"></i> How fast do you want to reach your goal?
                             </div>
                             <div class="mt-2">
-                                <small class="text-muted d-block"><strong>Slow:</strong> 0.25 kg/week - Sustainable & healthy</small>
+                                <small class="text-muted d-block"><strong>Slow:</strong> 0.3 kg/week - Sustainable & healthy</small>
                                 <small class="text-muted d-block"><strong>Moderate:</strong> 0.5 kg/week - Balanced approach</small>
-                                <small class="text-muted d-block"><strong>Fast:</strong> 1 kg/week - Aggressive but achievable</small>
+                                <small class="text-muted d-block"><strong>Fast:</strong> 1.0 kg/week - Aggressive but achievable</small>
                             </div>
                             {% for error in form.pace.errors %}
                             <div class="alert alert-danger mt-2 py-2">{{ error }}</div>

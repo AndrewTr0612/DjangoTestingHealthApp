@@ -59,7 +59,7 @@ class WeightEntry(models.Model):
         verbose_name_plural = "Weight Entries"
 
     def __str__(self):
-        return f"{self.user.username} - {self.weight_kg}kg on {self.recorded_date}"
+        return f"{self.user.username} - {self.weight_kg:.1f}kg on {self.recorded_date}"
 
     @property
     def bmi(self):
@@ -95,9 +95,9 @@ class WeightGoal(models.Model):
     ]
     
     PACE_CHOICES = [
-        ('slow', 'Slow (0.25 kg/week)'),
+        ('slow', 'Slow (0.3 kg/week)'),
         ('moderate', 'Moderate (0.5 kg/week)'),
-        ('fast', 'Fast (1 kg/week)'),
+        ('fast', 'Fast (1.0 kg/week)'),
     ]
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='weight_goal')
@@ -117,12 +117,12 @@ class WeightGoal(models.Model):
         verbose_name_plural = "Weight Goals"
 
     def __str__(self):
-        return f"{self.user.username}'s Goal: {self.get_goal_type_display()} to {self.target_weight_kg}kg"
+        return f"{self.user.username}'s Goal: {self.get_goal_type_display()} to {self.target_weight_kg:.1f}kg"
 
     def get_weekly_rate(self):
         """Get weekly weight change rate in kg"""
         rates = {
-            'slow': 0.25,
+            'slow': 0.3,
             'moderate': 0.5,
             'fast': 1.0,
         }

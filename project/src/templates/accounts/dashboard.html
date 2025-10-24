@@ -90,7 +90,7 @@
             <div class="d-flex justify-content-between align-items-start">
                 <div>
                     <p class="mb-1 opacity-75">Current Weight</p>
-                    <h3 class="mb-0">{% if latest_weight %}{{ latest_weight.weight_kg }} kg{% else %}--{% endif %}</h3>
+                    <h3 class="mb-0">{% if latest_weight %}{{ latest_weight.weight_kg|floatformat:1 }} kg{% else %}--{% endif %}</h3>
                 </div>
                 <i class="bi bi-weight stat-icon"></i>
             </div>
@@ -117,7 +117,7 @@
             <div class="d-flex justify-content-between align-items-start">
                 <div>
                     <p class="mb-1 opacity-75">Target Weight</p>
-                    <h3 class="mb-0">{% if weight_goal %}{{ weight_goal.target_weight_kg }} kg{% else %}--{% endif %}</h3>
+                    <h3 class="mb-0">{% if weight_goal %}{{ weight_goal.target_weight_kg|floatformat:1 }} kg{% else %}--{% endif %}</h3>
                     {% if weight_goal %}<small class="opacity-75">{{ weight_goal.get_goal_type_display }}</small>{% endif %}
                 </div>
                 <i class="bi bi-target stat-icon"></i>
@@ -172,13 +172,13 @@
                             <div class="col-6">
                                 <div class="border rounded p-3">
                                     <small class="text-muted d-block">To Lose/Gain</small>
-                                    <h5 class="mb-0 text-primary">{{ timeline_data.weight_difference }} kg</h5>
+                                    <h5 class="mb-0 text-primary">{{ timeline_data.weight_difference|floatformat:1 }} kg</h5>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="border rounded p-3">
                                     <small class="text-muted d-block">Weekly Rate</small>
-                                    <h5 class="mb-0 text-success">{{ timeline_data.weekly_rate }} kg/week</h5>
+                                    <h5 class="mb-0 text-success">{{ timeline_data.weekly_rate|floatformat:1 }} kg/week</h5>
                                 </div>
                             </div>
                             <div class="col-6">
@@ -224,13 +224,13 @@
                     <li class="mb-3 pb-3 border-bottom">
                         <div class="d-flex justify-content-between">
                             <span class="text-muted">Current</span>
-                            <span class="fw-bold">{{ timeline_data.current_weight }} kg</span>
+                            <span class="fw-bold">{{ timeline_data.current_weight|floatformat:1 }} kg</span>
                         </div>
                     </li>
                     <li class="mb-3 pb-3 border-bottom">
                         <div class="d-flex justify-content-between">
                             <span class="text-muted">Target</span>
-                            <span class="fw-bold text-primary">{{ timeline_data.target_weight }} kg</span>
+                            <span class="fw-bold text-primary">{{ timeline_data.target_weight|floatformat:1 }} kg</span>
                         </div>
                     </li>
                     <li class="mb-3 pb-3 border-bottom">
@@ -313,7 +313,7 @@
                                         {{ entry.recorded_date|date:"M d, Y" }}
                                     </span>
                                 </td>
-                                <td class="fw-bold">{{ entry.weight_kg }} kg</td>
+                                <td class="fw-bold">{{ entry.weight_kg|floatformat:1 }} kg</td>
                                 <td>{% if entry.bmi %}{{ entry.bmi }}{% else %}N/A{% endif %}</td>
                                 <td>
                                     {% if entry.bmi_category == 'Normal weight' %}
