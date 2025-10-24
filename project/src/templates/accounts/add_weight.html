@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Weight - Health Tracker{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-lg">
+            <div class="card-header text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <h3 class="mb-0">
+                    <i class="bi bi-plus-circle"></i> Add Weight Entry
+                </h3>
+                <small class="opacity-75">Track your progress with a new measurement</small>
+            </div>
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        <label for="{{ form.weight_kg.id_for_label }}" class="form-label fw-bold">
+                            <i class="bi bi-weight text-primary"></i> Weight (kg)
+                        </label>
+                        {{ form.weight_kg }}
+                        <div class="form-text">
+                            <i class="bi bi-info-circle"></i> Enter your weight in kilograms (e.g., 70.5)
+                        </div>
+                        {% for error in form.weight_kg.errors %}
+                        <div class="alert alert-danger mt-2 py-2">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="{{ form.recorded_date.id_for_label }}" class="form-label fw-bold">
+                            <i class="bi bi-calendar-check text-success"></i> Date
+                        </label>
+                        {{ form.recorded_date }}
+                        <div class="form-text">
+                            <i class="bi bi-info-circle"></i> When was this weight measured?
+                        </div>
+                        {% for error in form.recorded_date.errors %}
+                        <div class="alert alert-danger mt-2 py-2">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="{{ form.notes.id_for_label }}" class="form-label fw-bold">
+                            <i class="bi bi-sticky text-warning"></i> Notes (Optional)
+                        </label>
+                        {{ form.notes }}
+                        <div class="form-text">
+                            <i class="bi bi-info-circle"></i> Add any relevant notes (e.g., "After workout", "Morning weigh-in")
+                        </div>
+                        {% for error in form.notes.errors %}
+                        <div class="alert alert-danger mt-2 py-2">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-check-circle"></i> Save Weight Entry
+                        </button>
+                        <a href="{% url 'accounts:dashboard' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> Back to Dashboard
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

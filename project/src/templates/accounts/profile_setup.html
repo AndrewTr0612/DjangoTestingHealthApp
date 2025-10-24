@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if is_new %}Setup Profile{% else %}Edit Profile{% endif %} - Health Tracker{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">
+                    <i class="bi bi-person-gear"></i>
+                    {% if is_new %}Setup Your Profile{% else %}Edit Profile{% endif %}
+                </h3>
+            </div>
+            <div class="card-body p-4">
+                {% if is_new %}
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i>
+                    Please provide your basic information to get personalized health tracking.
+                </div>
+                {% endif %}
+
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.height_cm.id_for_label }}" class="form-label">
+                                <i class="bi bi-rulers"></i> {{ form.height_cm.label }}
+                            </label>
+                            {{ form.height_cm }}
+                            <small class="form-text text-muted">Enter your height in centimeters (e.g., 170)</small>
+                            {% for error in form.height_cm.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.gender.id_for_label }}" class="form-label">
+                                <i class="bi bi-gender-ambiguous"></i> {{ form.gender.label }}
+                            </label>
+                            {{ form.gender }}
+                            {% for error in form.gender.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.date_of_birth.id_for_label }}" class="form-label">
+                            <i class="bi bi-calendar-event"></i> {{ form.date_of_birth.label }}
+                        </label>
+                        {{ form.date_of_birth }}
+                        <small class="form-text text-muted">Optional - helps calculate age-related metrics</small>
+                        {% for error in form.date_of_birth.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-check-circle"></i> Save Profile
+                        </button>
+                        {% if not is_new %}
+                        <a href="{% url 'accounts:dashboard' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

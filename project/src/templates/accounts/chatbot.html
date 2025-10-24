@@ -1,0 +1,287 @@
+{% extends 'base.html' %}
+
+{% block title %}AI Health Assistant - Health Tracker{% endblock %}
+
+{% block extra_css %}
+<style>
+    .chat-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    .chat-box {
+        height: 500px;
+        overflow-y: auto;
+        padding: 1.5rem;
+        background: #f8f9fa;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+    }
+    .message-wrapper {
+        margin-bottom: 1rem;
+        display: flex;
+        flex-direction: column;
+    }
+    .message-wrapper.user {
+        align-items: flex-end;
+    }
+    .message-wrapper.ai {
+        align-items: flex-start;
+    }
+    .message-bubble {
+        max-width: 70%;
+        padding: 1rem;
+        border-radius: 15px;
+        word-wrap: break-word;
+        white-space: pre-wrap;
+    }
+    .message-wrapper.user .message-bubble {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    .message-wrapper.ai .message-bubble {
+        background: white;
+        color: #333;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .message-time {
+        font-size: 0.75rem;
+        color: #888;
+        margin-top: 0.25rem;
+        padding: 0 0.5rem;
+    }
+    .chat-input-container {
+        display: flex;
+        gap: 1rem;
+    }
+    .chat-input {
+        flex: 1;
+        padding: 1rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 25px;
+        font-size: 1rem;
+        resize: none;
+    }
+    .chat-input:focus {
+        outline: none;
+        border-color: #667eea;
+    }
+    .send-btn {
+        padding: 1rem 2rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 25px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+    .send-btn:hover:not(:disabled) {
+        transform: scale(1.05);
+    }
+    .send-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    .typing-indicator {
+        display: none;
+        padding: 1rem;
+        background: white;
+        border-radius: 10px;
+        width: fit-content;
+    }
+    .typing-indicator.active {
+        display: block;
+    }
+    .typing-dots {
+        display: inline-flex;
+        gap: 4px;
+    }
+    .typing-dots span {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #667eea;
+        animation: typing 1.4s infinite;
+    }
+    .typing-dots span:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+    .typing-dots span:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+    @keyframes typing {
+        0%, 60%, 100% { transform: translateY(0); }
+        30% { transform: translateY(-10px); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chat-container">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">
+                <i class="bi bi-chat-dots"></i> AI Health Assistant
+            </h3>
+            <p class="mb-0 small">Ask me anything about your health, fitness, nutrition, or weight goals!</p>
+        </div>
+        <div class="card-body p-0">
+            <div class="chat-box" id="chatBox">
+                {% for chat in recent_messages reversed %}
+                <div class="message-wrapper user">
+                    <div class="message-bubble">{{ chat.message }}</div>
+                    <div class="message-time">{{ chat.created_at|date:"M d, Y H:i" }}</div>
+                </div>
+                <div class="message-wrapper ai">
+                    <div class="message-bubble">{{ chat.response }}</div>
+                </div>
+                {% empty %}
+                <div class="text-center text-muted mt-5">
+                    <i class="bi bi-chat-quote" style="font-size: 3rem;"></i>
+                    <p class="mt-3">Start a conversation with your AI health assistant!</p>
+                    <p class="small">I can help you with:</p>
+                    <ul class="list-unstyled small">
+                        <li>💪 Exercise recommendations</li>
+                        <li>🥗 Nutrition advice</li>
+                        <li>⚖️ Weight management tips</li>
+                        <li>📊 Understanding your health metrics</li>
+                    </ul>
+                </div>
+                {% endfor %}
+                
+                <div class="typing-indicator message-wrapper ai" id="typingIndicator">
+                    <div class="message-bubble">
+                        <div class="typing-dots">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-3 border-top">
+                <div class="chat-input-container">
+                    <textarea 
+                        id="messageInput" 
+                        class="chat-input" 
+                        placeholder="Type your message here..."
+                        rows="1"
+                    ></textarea>
+                    <button id="sendBtn" class="send-btn">
+                        <i class="bi bi-send"></i> Send
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const chatBox = document.getElementById('chatBox');
+    const messageInput = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const typingIndicator = document.getElementById('typingIndicator');
+    const csrfToken = '{{ csrf_token }}';
+
+    function scrollToBottom() {
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function addMessage(message, isUser) {
+        const wrapper = document.createElement('div');
+        wrapper.className = `message-wrapper ${isUser ? 'user' : 'ai'}`;
+        
+        const bubble = document.createElement('div');
+        bubble.className = 'message-bubble';
+        bubble.textContent = message;
+        
+        wrapper.appendChild(bubble);
+        
+        if (isUser) {
+            const time = document.createElement('div');
+            time.className = 'message-time';
+            const now = new Date();
+            time.textContent = now.toLocaleString('en-US', { 
+                month: 'short', 
+                day: 'numeric', 
+                year: 'numeric',
+                hour: 'numeric',
+                minute: '2-digit'
+            });
+            wrapper.appendChild(time);
+        }
+        
+        chatBox.insertBefore(wrapper, typingIndicator);
+        scrollToBottom();
+    }
+
+    async function sendMessage() {
+        const message = messageInput.value.trim();
+        if (!message) return;
+
+        // Disable input
+        messageInput.disabled = true;
+        sendBtn.disabled = true;
+
+        // Add user message
+        addMessage(message, true);
+        messageInput.value = '';
+
+        // Show typing indicator
+        typingIndicator.classList.add('active');
+        scrollToBottom();
+
+        try {
+            const response = await fetch('{% url "accounts:chatbot_api" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({ message: message })
+            });
+
+            const data = await response.json();
+
+            // Hide typing indicator
+            typingIndicator.classList.remove('active');
+
+            if (data.success) {
+                addMessage(data.response, false);
+            } else {
+                addMessage('Sorry, something went wrong. Please try again.', false);
+            }
+        } catch (error) {
+            typingIndicator.classList.remove('active');
+            addMessage('Sorry, I could not connect to the server. Please check your internet connection.', false);
+            console.error('Error:', error);
+        }
+
+        // Re-enable input
+        messageInput.disabled = false;
+        sendBtn.disabled = false;
+        messageInput.focus();
+    }
+
+    sendBtn.addEventListener('click', sendMessage);
+
+    messageInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+
+    // Auto-resize textarea
+    messageInput.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+    });
+
+    // Initial scroll to bottom
+    scrollToBottom();
+</script>
+{% endblock %}
