@@ -32,6 +32,14 @@ DEBUG = config('DEBUG', default=True, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
 
+# CSRF and Security Settings
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+    'https://localhost:8000',
+    'https://127.0.0.1:8000',
+]
+
 
 # Application definition
 
@@ -138,3 +146,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGIN_URL = 'accounts:login'
 LOGIN_REDIRECT_URL = 'accounts:dashboard'
 LOGOUT_REDIRECT_URL = 'accounts:login'
+
+# LM Studio Configuration (OpenAI-compatible API)
+LM_STUDIO_API_URL = config('LM_STUDIO_API_URL', default='http://192.168.10.70:1234/v1/chat/completions')
+USE_LM_STUDIO = config('USE_LM_STUDIO', default=True, cast=bool)

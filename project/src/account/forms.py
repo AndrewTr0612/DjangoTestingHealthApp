@@ -81,6 +81,7 @@ class WeightEntryForm(forms.ModelForm):
         }
         
     def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
         self.fields['notes'].required = False
         # Update max date dynamically
@@ -92,6 +93,30 @@ class WeightEntryForm(forms.ModelForm):
         if recorded_date and recorded_date > date.today():
             raise ValidationError('Weight entry date cannot be in the future. Please select today or an earlier date.')
         return recorded_date
+    
+    def clean(self):
+        """Validate that user hasn't exceeded 3 entries per day"""
+        cleaned_data = super().clean()
+        recorded_date = cleaned_data.get('recorded_date')
+        
+        if self.user and recorded_date:
+            # Count existing entries for this date (excluding current instance if editing)
+            existing_count = WeightEntry.objects.filter(
+                user=self.user,
+                recorded_date=recorded_date
+            )
+            
+            # Exclude current instance if we're editing
+            if self.instance and self.instance.pk:
+                existing_count = existing_count.exclude(pk=self.instance.pk)
+            
+            if existing_count.count() >= 3:
+                raise ValidationError(
+                    f'You can only add up to 3 weight entries per day. '
+                    f'You already have {existing_count.count()} entries for {recorded_date.strftime("%Y-%m-%d")}.'
+                )
+        
+        return cleaned_data
 
 
 class WeightGoalForm(forms.ModelForm):

@@ -178,7 +178,7 @@ def dashboard_view(request):
 def add_weight_view(request):
     """Add a new weight entry"""
     if request.method == 'POST':
-        form = WeightEntryForm(request.POST)
+        form = WeightEntryForm(request.POST, user=request.user)
         if form.is_valid():
             weight_entry = form.save(commit=False)
             weight_entry.user = request.user
@@ -186,7 +186,7 @@ def add_weight_view(request):
             messages.success(request, 'Weight entry added successfully!')
             return redirect('accounts:dashboard')
     else:
-        form = WeightEntryForm()
+        form = WeightEntryForm(user=request.user)
     
     return render(request, 'accounts/add_weight.html', {'form': form})
 
@@ -217,10 +217,36 @@ def set_goal_view(request):
     # Get latest weight for reference
     latest_weight = request.user.weight_entries.first()
     
+    # Calculate weight suggestions based on current weight
+    suggestions = None
+    if latest_weight and hasattr(request.user, 'profile'):
+        profile = request.user.profile
+        current_weight = latest_weight.weight_kg
+        height_m = profile.height_cm / 100
+        current_bmi = current_weight / (height_m ** 2)
+        
+        # Calculate healthy weight range (BMI 18.5 - 24.9)
+        min_healthy_weight = 18.5 * (height_m ** 2)
+        max_healthy_weight = 24.9 * (height_m ** 2)
+        ideal_weight = 22 * (height_m ** 2)  # Middle of healthy range
+        
+        suggestions = {
+            'current_weight': round(current_weight, 1),
+            'current_bmi': round(current_bmi, 1),
+            'min_healthy': round(min_healthy_weight, 1),
+            'max_healthy': round(max_healthy_weight, 1),
+            'ideal_weight': round(ideal_weight, 1),
+            'lose_moderate': round(current_weight - 5, 1),  # Lose 5 kg
+            'lose_significant': round(current_weight - 10, 1),  # Lose 10 kg
+            'gain_moderate': round(current_weight + 3, 1),  # Gain 3 kg
+            'gain_significant': round(current_weight + 5, 1),  # Gain 5 kg
+        }
+    
     context = {
         'form': form,
         'is_new': is_new,
-        'latest_weight': latest_weight
+        'latest_weight': latest_weight,
+        'suggestions': suggestions
     }
     return render(request, 'accounts/set_goal.html', context)
 

@@ -30,6 +30,61 @@
                 </div>
                 {% endif %}
 
+                {% if suggestions %}
+                <div class="alert alert-success mb-4">
+                    <h6 class="mb-3"><i class="bi bi-lightbulb-fill"></i> Weight Goal Suggestions</h6>
+                    
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body py-2">
+                                    <small class="text-muted d-block">Healthy Weight Range</small>
+                                    <strong>{{ suggestions.min_healthy }} - {{ suggestions.max_healthy }} kg</strong>
+                                    <small class="text-muted d-block">(BMI 18.5 - 24.9)</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body py-2">
+                                    <small class="text-muted d-block">Ideal Weight</small>
+                                    <strong>{{ suggestions.ideal_weight }} kg</strong>
+                                    <small class="text-muted d-block">(BMI 22.0)</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3">
+                            <button type="button" class="btn btn-sm btn-outline-danger w-100 goal-suggestion" data-weight="{{ suggestions.lose_moderate }}">
+                                <small>Lose 5kg</small><br>
+                                <strong>{{ suggestions.lose_moderate }} kg</strong>
+                            </button>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <button type="button" class="btn btn-sm btn-outline-danger w-100 goal-suggestion" data-weight="{{ suggestions.lose_significant }}">
+                                <small>Lose 10kg</small><br>
+                                <strong>{{ suggestions.lose_significant }} kg</strong>
+                            </button>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <button type="button" class="btn btn-sm btn-outline-success w-100 goal-suggestion" data-weight="{{ suggestions.gain_moderate }}">
+                                <small>Gain 3kg</small><br>
+                                <strong>{{ suggestions.gain_moderate }} kg</strong>
+                            </button>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <button type="button" class="btn btn-sm btn-outline-success w-100 goal-suggestion" data-weight="{{ suggestions.gain_significant }}">
+                                <small>Gain 5kg</small><br>
+                                <strong>{{ suggestions.gain_significant }} kg</strong>
+                            </button>
+                        </div>
+                    </div>
+                    <small class="text-muted mt-2 d-block"><i class="bi bi-info-circle"></i> Click a suggestion to use it as your target weight</small>
+                </div>
+                {% endif %}
+
                 <form method="post">
                     {% csrf_token %}
                     
@@ -114,4 +169,29 @@
         </div>
     </div>
 </div>
+
+<script>
+// Handle weight suggestion button clicks
+document.addEventListener('DOMContentLoaded', function() {
+    const suggestionButtons = document.querySelectorAll('.goal-suggestion');
+    const targetWeightInput = document.getElementById('{{ form.target_weight_kg.id_for_label }}');
+    
+    suggestionButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const weight = this.getAttribute('data-weight');
+            if (targetWeightInput && weight) {
+                targetWeightInput.value = weight;
+                
+                // Visual feedback
+                suggestionButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Smooth scroll to the target weight field
+                targetWeightInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                targetWeightInput.focus();
+            }
+        });
+    });
+});
+</script>
 {% endblock %}
