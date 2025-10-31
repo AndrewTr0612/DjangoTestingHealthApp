@@ -96,7 +96,7 @@ A comprehensive health and fitness tracking web application built with Django. T
    ```env
    SECRET_KEY=your-secret-key-here
    DEBUG=True
-   ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
+   ALLOWED_HOSTS=localhost
    ```
 
 5. **Run Migrations**
